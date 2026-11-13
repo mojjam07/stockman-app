@@ -8,7 +8,8 @@ Stock with photos, fast sales and printed receipts for small shops.
 client/      React app (Vite). Built into client/dist and served by Express in production.
 server/      Express API: validates input, checks the login, talks to Supabase with the service key.
 supabase/    SQL migration: tables, security rules, checkout and add-item functions, image bucket.
-render.yaml  One-click Render deployment.
+api/         Vercel serverless API entry point.
+vercel.json  Vercel deployment config.
 ```
 
 How the pieces fit: the browser logs in with **Supabase Auth** and sends its token to the **Express API**.
@@ -40,16 +41,33 @@ Open http://localhost:5173, create a shop account, add an item with a photo, and
 
 To run the production build locally: `npm run build && npm start`, then open http://localhost:4000.
 
-## 3. Deploy to Render
+## 3. Deploy to Vercel
 
-1. Push this folder to GitHub.
-2. Render > **New > Blueprint** > pick the repo. It reads `render.yaml`.
-3. Enter four values when asked: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
-   (the two URLs are the same value).
-4. Deploy. The site and API are served from the same address, so there is nothing else to configure.
-5. In Supabase > **Authentication > URL Configuration**, set **Site URL** to your Render address (needed for email confirmation links).
+1. Push this repository to GitHub.
+2. In Vercel, click **Add New Project** and import the repo.
+3. Set the project root to the repository root.
+4. In **Framework Preset**, choose **Other** (this is a Vite frontend plus a serverless API, not a standard Next.js app).
+5. Set the build command to:
+   ```bash
+   npm run build
+   ```
+6. Set the output directory to:
+   ```bash
+   client/dist
+   ```
+7. Add these environment variables in Vercel:
+   ```bash
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-or-publishable-key
+   SUPABASE_SERVICE_ROLE_KEY=your-service-role-or-secret-key
+   ```
+   You can also set `SUPABASE_URL` explicitly if you prefer; otherwise the app falls back to `VITE_SUPABASE_URL`.
+8. Deploy.
+9. After the first deployment, copy your Vercel production URL and add it in Supabase:
+   **Authentication > URL Configuration > Site URL**.
+   This is required for email redirects and auth callbacks.
 
-If you add or change a `VITE_` value later, trigger a new deploy: those are baked in at build time.
+If you add or change a `VITE_` value later, trigger a new deployment: those values are baked in at build time.
 
 ## Security notes
 
@@ -62,8 +80,8 @@ If you add or change a `VITE_` value later, trigger a new deploy: those are bake
 
 ## Good to know
 
-- **Free tiers:** Render free services sleep when idle (the first visit after a while is slow) and Supabase free projects pause
-  after a week of no activity. Use paid plans for a shop that depends on this daily.
+- **Free tiers:** Vercel and Supabase free plans are enough to test the app, but production shops should consider paid plans for reliability.
 - **Backups:** download periodic exports (`pg_dump`) or use a paid Supabase plan with backups.
 - **Not included yet:** password-reset emails, multiple staff logins per shop, and importing data from the older Django EasyBook app.
+
 # stockman-app

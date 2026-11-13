@@ -1,0 +1,13 @@
+{
+  "name": "stockman-inventory",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "build": "npm --workspace client run build",
+    "dev:client": "npm --workspace client run dev",
+    "dev:server": "npm --workspace server run dev"
+  }
+}
